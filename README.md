@@ -112,16 +112,21 @@ Rather than buying expensive rack-mount servers, this cluster was engineered fro
 | **MariaDB** | Database | `mariadb:11.4` | `3306/tcp` | Replicated (Healthy) | Core relational SQL database for homelab metrics & app states |
 | **CloudBeaver** | Database GUI | `dbeaver/cloudbeaver:latest` | `8978/tcp` | Replicated (Worker) | Web-based relational database administration interface |
 | **PostgreSQL** | Database | `postgres:14.2` | `5432/tcp` | Standalone (Healthy) | Dedicated ACID-compliant relational backend for n8n workflows |
-| **n8n** | Automation | `n8nio/n8n:2.34.4` | `5678/tcp` | Replicated | Low-code workflow automation orchestrating API & webhook tasks |
+| **n8n** | Automation | `n8nio/n8n:2.34.4` | `5678/tcp` | Replicated | Event-driven workflow automation orchestrating API & webhook tasks |
+| **Home Assistant** | IoT / Smart Home | `homeassistant/home-assistant` | `8123/tcp` | Replicated (Healthy) | Centralized IoT hub managing sensor telemetry, zigbee/wifi automations |
+| **Hermes / Ollama** | Private AI Agents | `local-inference` | `8642/9119/tcp` | Replicated | On-premise LLM inference (Qwen 2.5 Coder) & autonomous agent execution |
+| **Syncthing** | Data Sync | `syncthing/syncthing` | `8384, 22000/tcp` | Replicated (Healthy) | Continuous peer-to-peer encrypted file synchronization across devices |
 | **Portainer CE** | Orchestration | `portainer/portainer-ce:2.21.5` | `9000/9443/tcp` | Swarm Leader | Centralized web interface for Docker Swarm stack management |
 | **Portainer Agent** | Orchestration | `portainer/agent:2.21.5` | `9001/tcp` | Global (All Nodes) | Distributed telemetry and task agent across cluster worker nodes |
 | **Glances** | Monitoring | `nicolargo/glances:latest-full` | `61208/61209/tcp` | Global | Real-time multi-metric resource monitor (CPU, RAM, disk, I/O) |
+| **RackPeek** | Monitoring | `aptacode/rackpeek:v2.0.0` | `8095/tcp` | Replicated (Healthy) | Visual hardware rack and service topology dashboard |
+| **Cockpit** | SysAdmin | `systemd / bare-metal` | `9090/tcp` | Host Daemon | Headless Linux administration, storage partitioning, and systemd logs |
 | **Pi-hole** | DNS & Security | `pihole/pihole:latest` | `53/udp, 8080/tcp` | Replicated (Healthy) | Network-wide ad blocker and local recursive DNS resolver |
 | **Tailscale** | Networking | `tailscale/tailscale:v1.98.3` | N/A (Mesh WireGuard) | Host Mode | Zero-trust encrypted overlay mesh VPN for secure remote administration |
 | **SpiderFoot** | Security / OSINT | `spiderfoot:local` | `5001/tcp` | Replicated | Automated OSINT reconnaissance, IP lookup & security scanning |
 | **God's Eye View** | Geospatial / AI | `gods-eye-view:local` | `4173/tcp` | Replicated | Real-time 3D spatial intelligence globe & vehicle tracking |
 | **Jellyfin** | Media Streaming | `linuxserver/jellyfin:10.11.10`| `8096/8097/tcp` | Replicated | Private hardware-accelerated media streaming server |
-| **Hermes / Ollama** | Private AI | `local-inference` | `8642/9119/tcp` | Replicated | Edge large language model execution (Qwen 2.5 Coder) |
+| **qBittorrent** | Storage Ingestion | `ghcr.io/hotio/qbittorrent` | `8181/tcp` | Replicated | Automated network downloads with direct storage volume binding |
 
 ---
 
@@ -196,6 +201,28 @@ PubkeyAuthentication yes
 PermitRootLogin prohibit-password
 MaxAuthTries 3
 ```
+
+---
+
+## Future Roadmap & Strategic Upgrades
+
+To scale **The Hive** from a high-efficiency homelab into an isolated, enterprise-hardened research environment, the following phases are currently in active development:
+
+### 1. Network Segmentation & Dedicated VLAN Isolation
+* **Subnet Segregation:** Transitioning cluster physical interfaces from the primary domestic Wi-Fi/Ethernet subnet into a dedicated, isolated VLAN (`192.168.200.0/24`) managed via an L2/L3 managed switch or virtual firewall router.
+* **Zero-Trust Access Gateways:** Confining all container port publishing exclusively to the private VLAN and Tailscale overlay, preventing broadcast discovery from household consumer devices and containing potential edge vulnerabilities.
+* **Traffic Shaping & QoS:** Enforcing priority queues for real-time telemetry, SQL transactions, and database replication over media streaming.
+
+### 2. Custom Domain-Specific Datasets & On-Premise AI Fine-Tuning
+* **Curated Research Datasets:** Building automated ingestion pipelines that scrape, clean, and vectorize private technical documentation, mechatronics sensor logs, acoustic field research data, and CAD design specifications.
+* **Local RAG & Quantized Model Fine-Tuning:** Leveraging the on-premise Ollama and Hermes Agent architecture with Qdrant/Chroma vector embeddings to run Retrieval-Augmented Generation (RAG) and parameter-efficient fine-tuning (LoRA/QLoRA), creating a private, offline engineering copilot that retains 100% data sovereignty.
+
+### 3. Cross-Service Unified Event Mesh
+* **Smart Home $\leftrightarrow$ Homelab Interlock:** Integrating Home Assistant Zigbee environmental sensors (ambient temperature, humidity, power draw meters) with n8n event webhooks and MariaDB time-series tables.
+* **Automated Thermal & Load Throttling:** Programmatically triggering supplemental cooling fan arrays or rebalancing Swarm container tasks to worker nodes if manager thermal junction temperatures exceed 65°C.
+
+### 4. High-Endurance Clustered Storage
+* **ZFS / Ceph Distributed Storage Pools:** Expanding storage beyond the internal laptop drives with an external mirrored NVMe/SATA SSD array featuring automated snapshots, bitrot protection, and offsite encrypted backups.
 
 ---
 
