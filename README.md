@@ -103,6 +103,11 @@ Rather than buying expensive rack-mount servers, this cluster was engineered fro
 | <img src="docs/images/05_casaos_service_dashboard.jpeg" alt="CasaOS Dashboard" width="450"> | <img src="docs/images/06_glances_system_telemetry.jpeg" alt="Glances Telemetry" width="450"> |
 | *14 active containers (MariaDB, CloudBeaver, Home Assistant, n8n, Pi-hole, Jellyfin, Tailscale) with healthy status* | *Debian 13 (Linux 6.12), Intel Core i3-5005U (4 threads), 3.74 GB RAM, 3.2W idle power draw, 50°C thermal equilibrium* |
 
+| Portainer CE 2-Node Swarm Environment | Cockpit Multi-Host Linux Administration |
+| :---: | :---: |
+| <img src="docs/images/07_portainer_swarm_overview.png" alt="Portainer Swarm Environment" width="450"> | <img src="docs/images/08_cockpit_cluster_management.png" alt="Cockpit Linux Administration" width="450"> |
+| *Docker Swarm 29.8.1 cluster: 2 physical nodes, 6 CPUs, 7.9 GB RAM pool, 9 stacks, 14 running containers* | *Cockpit web console managing Debian 13 on claude with remote worker node gpt joined and monitored* |
+
 ---
 
 ## Microservices Architecture & Port Mapping
@@ -248,7 +253,9 @@ The-Hive/
         ├── 03_hardware_teardown_repair.jpg
         ├── 04_baremetal_debian_partitioning.jpg
         ├── 05_casaos_service_dashboard.jpeg
-        └── 06_glances_system_telemetry.jpeg
+        ├── 06_glances_system_telemetry.jpeg
+        ├── 07_portainer_swarm_overview.png
+        └── 08_cockpit_cluster_management.png
 ```
 
 ---
