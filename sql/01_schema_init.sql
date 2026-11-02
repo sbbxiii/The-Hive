@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS hardware_maintenance (
 INSERT INTO cluster_nodes 
 (hostname, ip_address, cluster_role, hardware_base, cpu_model, cpu_cores, cpu_threads, ram_installed_mb, storage_capacity_gb, tdp_watts, tailscale_ip)
 VALUES 
-('claude', '192.168.100.121', 'manager', 'Salvaged Acer Aspire 1 / Repaired i3-5005U Laptop', 'Intel(R) Core(TM) i3-5005U CPU @ 2.00GHz', 2, 4, 3840, 452.59, 15.00, '100.114.127.74'),
+('claude', '192.168.100.121', 'manager', 'Salvaged Acer Aspire 1 / Repaired i3-5005U Laptop', 'Intel(R) Core(TM) i3-5005U CPU @ 2.00GHz', 2, 4, 3840, 452.59, 15.00, '100.64.0.10'),
 ('gpt', '192.168.100.126', 'worker', 'Salvaged Bare-Metal Laptop Node', 'Intel Core x86_64 Low-Power Mobile CPU', 2, 4, 3840, 62.50, 15.00, NULL)
 ON DUPLICATE KEY UPDATE updated_at = CURRENT_TIMESTAMP;
 
