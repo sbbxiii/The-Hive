@@ -8,9 +8,11 @@
 [![Energy Efficiency](https://img.shields.io/badge/Power-3.2W%20Idle%20%7C%20%3C15W%20TDP-success.svg)]()
 [![Uptime](https://img.shields.io/badge/Uptime-35%2B%20Days%20Continuous-brightgreen.svg)]()
 
-**The Hive** is a production-grade, energy-efficient multi-node headless Linux server infrastructure built by salvaging, restoring, and repurposing decommissioned, physically damaged consumer laptops into a high-availability **Docker Swarm** cluster. 
+**The Hive** is a production-grade, energy-efficient 2-node headless Linux server infrastructure built by salvaging, restoring, and repurposing **two decommissioned, physically damaged consumer laptops** into a high-availability **Docker Swarm** cluster:
+* **Laptop Node 1 (`claude` — Swarm Manager @ `192.168.100.121`):** Salvaged Acer Aspire 1 laptop powered by an Intel Core i3-5005U processor (2 cores, 4 threads @ 2.0 GHz, 3.8 GB RAM, 453 GB storage), restored from structural casing fracture, DC barrel jack wire harness failure, and degraded thermal interface. Acts as the Swarm Leader hosting MariaDB 11.4 SQL, Portainer CE, n8n, Pi-hole, and core services.
+* **Laptop Node 2 (`gpt` — Swarm Worker @ `192.168.100.126`):** Second salvaged low-spec mobile laptop repaired, fitted with bare-metal Debian Linux, and joined to the Swarm cluster as a dedicated compute worker to host distributed containerized workloads (CloudBeaver database GUI, Portainer Swarm agents).
 
-By combining **mechatronics hardware overhaul** (structural case rebuilding, DC power harness repair, thermal compound replacement) with **enterprise IT systems administration** (bare-metal partition engineering, container orchestration, zero-trust overlay networking, and relational SQL database design), **The Hive** serves 14+ self-hosted microservices 24/7 with an idle thermal footprint of **3.2W** and continuous 35+ day uptime.
+By combining **mechatronics hardware overhaul** (structural case rebuilding, DC power harness repair, thermal compound replacement) with **enterprise IT systems administration** (bare-metal partition engineering, container orchestration, zero-trust overlay networking, and relational SQL database design), **The Hive** serves 14+ self-hosted microservices 24/7 across two physical laptop nodes with an idle thermal footprint of **3.2W** and continuous 35+ day uptime.
 
 ---
 
@@ -75,6 +77,16 @@ Rather than buying expensive rack-mount servers, this cluster was engineered fro
 | :---: | :---: |
 | <img src="docs/images/03_hardware_teardown_repair.jpg" alt="Hardware Teardown" width="420"> | <img src="docs/images/04_baremetal_debian_partitioning.jpg" alt="Debian Partitioning" width="420"> |
 | *Motherboard teardown, DC jack wiring rework, USB daughterboard, hinge epoxy anchoring, thermal cleaning* | *Manual partition mapping: 1.0GB ESP, 3.2GB Swap, 58.3GB ext4 bare-metal root partition on eMMC* |
+
+### The Two Bare-Metal Physical Laptop Nodes
+1. **Node 1: `claude` (Manager / Leader — `192.168.100.121`):**
+   * **Base Machine:** Salvaged Acer Aspire 1 (A114-32 / N17Q4).
+   * **Specs:** Intel Core i3-5005U (2 cores, 4 threads @ 2.00 GHz, 15W TDP), 3.74 GB DDR3 RAM, 453 GB mass storage.
+   * **Role:** Docker Swarm Leader node running MariaDB 11.4 SQL, Portainer CE orchestrator, n8n workflow engine, Pi-hole DNS sinkhole, and system telemetry.
+2. **Node 2: `gpt` (Compute Worker — `192.168.100.126`):**
+   * **Base Machine:** Repaired low-power x86_64 mobile laptop.
+   * **Specs:** 2 cores, 4 threads low-power CPU, 3.8 GB RAM, 62.5 GB bare-metal eMMC storage.
+   * **Role:** Docker Swarm compute worker node running distributed worker containers (CloudBeaver SQL web client, Portainer global agent) attached via VXLAN overlay network.
 
 ### Key Mechanical & Electronic Interventions:
 1. **Structural Case Repair:** Disassembled damaged chassis, bonded fractured structural ribs using high-tensile epoxy, and re-seated stripped brass threaded inserts to permanently secure the hinge assembly.
