@@ -14,6 +14,8 @@
 
 By combining **mechatronics hardware overhaul** (structural case rebuilding, DC power harness repair, thermal compound replacement) with **enterprise IT systems administration** (bare-metal partition engineering, container orchestration, zero-trust overlay networking, and relational SQL database design), **The Hive** serves 14+ self-hosted microservices 24/7 across two physical laptop nodes with an idle thermal footprint of **3.2W** and continuous 35+ day uptime.
 
+> 📘 **Operations Runbook:** Check out the comprehensive [Cluster Modernization & Operations Guide](docs/CLUSTER_MODERNIZATION_OPERATIONS_GUIDE.md) detailing the retirement of CasaOS, deployment of Homepage, load-balanced media automation, and Docker storage optimizations.
+
 ---
 
 ## Architecture & Cluster Topology
@@ -251,6 +253,7 @@ The-Hive/
 │   ├── setup_node.sh                   # Headless node provisioning & systemd configuration
 │   └── backup_mariadb.sh               # Automated database backup and rotation script
 └── docs/
+    ├── CLUSTER_MODERNIZATION_OPERATIONS_GUIDE.md # Cluster migration, runbooks & maintenance guide
     └── images/
         ├── 01_salvaged_hardware_acer_back.jpg
         ├── 02_hinge_chassis_crack_damage.jpg
