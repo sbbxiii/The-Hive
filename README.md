@@ -25,33 +25,35 @@ flowchart TD
         Remote["Mobile / Remote Clients"]
     end
 
-    subgraph MeshNetwork["Zero-Trust Security Layer (Tailscale & Hardened SSH)"]
-        TS["Tailscale Encrypted Mesh Overlay (100.x.x.x)"]
-        SSH["Ed25519 Cryptographic SSH Key Pair Auth"]
+    subgraph Security["Zero-Trust Security & Network Redundancy"]
+        TS["Tailscale Mesh Overlay (100.75.203.41)"]
+        NB["NetBird Failover WireGuard Mesh"]
+        SSH["Hardened Ed25519 SSH Auth"]
     end
 
-    subgraph Cluster["The Hive — Swarm Cluster (Subnet 192.168.100.0/24)"]
+    subgraph Cluster["The Hive — 2-Node Docker Swarm Cluster (192.168.100.0/24)"]
         subgraph NodeClaude["Manager Node: 'claude' (192.168.100.121)"]
             OS1["Debian 13 (Linux 6.12 x86_64)<br/>Intel Core i3-5005U (4T @ 2.0GHz, 3.8GB RAM)"]
             SwarmM["Docker Swarm Leader / Engine 29.8.1"]
+            Homepage["Homepage Dashboard (Port 3000)"]
             PortainerM["Portainer CE (Port 9443)"]
-            CasaOS["CasaOS Dashboard (Port 81)"]
-            MariaDB["MariaDB 11.4 SQL (Port 3306)"]
-            Postgres["PostgreSQL 14.2 (Port 5432)"]
-            N8N["n8n Automation Engine (Port 5678)"]
             PiHole["Pi-hole DNS Sinkhole (Port 53/8080)"]
-            Glances1["Glances Telemetry (Port 61208)"]
-            Jellyfin["Jellyfin Media Server (Port 8096)"]
-            Spiderfoot["SpiderFoot OSINT (Port 5001)"]
-            GodsEye["God's Eye View 3D Tracker (Port 4173)"]
-            Ollama["Ollama Local AI (Qwen 2.5 / Hermes)"]
+            N8N["n8n Automation Engine (Port 5678)"]
+            Postgres["PostgreSQL 14.2 (Port 5432)"]
+            Jellyfin["Jellyfin Media Server (Port 8097)"]
+            QBit["qBittorrent Engine (Port 8181)"]
+            Sonarr["Sonarr TV Series PVR (Port 8989)"]
+            Radarr["Radarr Movie Collection PVR (Port 7878)"]
+            Cockpit1["Cockpit Web Console (Port 9090)"]
         end
 
         subgraph NodeGPT["Worker Node: 'gpt' (192.168.100.126)"]
             OS2["Debian 13 Bare-Metal Node<br/>Low-Power x86 Mobile CPU (3.8GB RAM)"]
             SwarmW["Docker Swarm Worker"]
             PortAgent["Portainer Global Swarm Agent"]
+            MariaDB["MariaDB 11.4 SQL (Port 3306)"]
             CloudBeaver["CloudBeaver SQL Web GUI (Port 8978)"]
+            Prowlarr["Prowlarr Indexer Sync (Port 9696)"]
         end
     end
 
@@ -59,7 +61,7 @@ flowchart TD
     Remote --> TS
     TS --> SSH
     SSH --> SwarmM
-    SwarmM <===>|"Overlay Network (vxlan)"| SwarmW
+    SwarmM <===>|"Overlay VXLAN (database_learning_network, prowlarr_default)"| SwarmW
 ```
 
 ---
@@ -98,15 +100,15 @@ Rather than buying expensive rack-mount servers, this cluster was engineered fro
 
 ## Live System Telemetry & Dashboards
 
-| CasaOS Unified Microservices Dashboard | Glances Real-Time Hardware & Container Telemetry |
+| Homepage Unified Homelab Dashboard | Glances Real-Time Hardware & Container Telemetry |
 | :---: | :---: |
-| <img src="docs/images/05_casaos_service_dashboard.jpeg" alt="CasaOS Dashboard" width="450"> | <img src="docs/images/06_glances_system_telemetry.jpeg" alt="Glances Telemetry" width="450"> |
-| *14 active containers (MariaDB, CloudBeaver, Home Assistant, n8n, Pi-hole, Jellyfin, Tailscale) with healthy status* | *Debian 13 (Linux 6.12), Intel Core i3-5005U (4 threads), 3.74 GB RAM, 3.2W idle power draw, 50°C thermal equilibrium* |
+| <img src="docs/images/05_homepage_cluster_dashboard.png" alt="Homepage Dashboard" width="450"> | <img src="docs/images/06_glances_system_telemetry.jpeg" alt="Glances Telemetry" width="450"> |
+| *Homepage dashboard displaying live widgets for CPU/RAM/Disk, qBittorrent, Sonarr, Radarr, Prowlarr, Pi-hole, and container status across both Swarm nodes* | *Debian 13 (Linux 6.12), Intel Core i3-5005U (4 threads), 3.74 GB RAM, 3.2W idle power draw, 50°C thermal equilibrium* |
 
 | Portainer CE 2-Node Swarm Environment | Cockpit Multi-Host Linux Administration |
 | :---: | :---: |
 | <img src="docs/images/07_portainer_swarm_overview.png" alt="Portainer Swarm Environment" width="450"> | <img src="docs/images/08_cockpit_cluster_management.png" alt="Cockpit Linux Administration" width="450"> |
-| *Docker Swarm 29.8.1 cluster: 2 physical nodes, 6 CPUs, 7.9 GB RAM pool, 9 stacks, 14 running containers* | *Cockpit web console managing Debian 13 on claude with remote worker node gpt joined and monitored* |
+| *Docker Swarm 29.8.1 cluster: 2 physical nodes, 6 CPUs, 7.9 GB RAM pool, managing distributed stacks and global agents* | *Cockpit web console managing Debian 13 on claude with remote worker node gpt joined and monitored* |
 
 ---
 
@@ -114,24 +116,22 @@ Rather than buying expensive rack-mount servers, this cluster was engineered fro
 
 | Service Name | Stack / Role | Base Image | Published Port | Health / Mode | Purpose |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **MariaDB** | Database | `mariadb:11.4` | `3306/tcp` | Replicated (Healthy) | Core relational SQL database for homelab metrics & app states |
-| **CloudBeaver** | Database GUI | `dbeaver/cloudbeaver:latest` | `8978/tcp` | Replicated (Worker) | Web-based relational database administration interface |
+| **Homepage** | Unified Dashboard | `ghcr.io/gethomepage/homepage:latest` | `3000/tcp` | Replicated (Manager) | Production homelab dashboard with live API integration & Swarm status |
+| **Sonarr** | Media Pipeline | `lscr.io/linuxserver/sonarr:latest` | `8989/tcp` | Replicated (Manager) | Automated TV series PVR, release indexer query, and download client manager |
+| **Radarr** | Media Pipeline | `lscr.io/linuxserver/radarr:latest` | `7878/tcp` | Replicated (Manager) | Automated movie collection PVR and filesystem library manager |
+| **Prowlarr** | Indexer Sync | `lscr.io/linuxserver/prowlarr:latest` | `9696/tcp` | Swarm Ingress (Worker) | Centralized Usenet & Torrent indexer proxy syncing to Sonarr/Radarr |
+| **qBittorrent** | Storage Ingestion | `ghcr.io/hotio/qbittorrent:release-5.0.4` | `8181/tcp` | Replicated (Manager) | High-performance download engine with remote path mapping to `/DATA` |
+| **Jellyfin** | Media Streaming | `linuxserver/jellyfin:10.11.10` | `8097/tcp` | Replicated (Manager) | Hardware-accelerated media streaming server scanning `/DATA/Media` |
+| **MariaDB** | Database | `mariadb:11.4` | `3306/tcp` | Swarm (Worker: gpt) | Core relational SQL database for homelab metrics & app states |
+| **CloudBeaver** | Database GUI | `dbeaver/cloudbeaver:latest` | `8978/tcp` | Swarm (Worker: gpt) | Web-based relational database administration interface |
 | **PostgreSQL** | Database | `postgres:14.2` | `5432/tcp` | Standalone (Healthy) | Dedicated ACID-compliant relational backend for n8n workflows |
-| **n8n** | Automation | `n8nio/n8n:2.34.4` | `5678/tcp` | Replicated | Event-driven workflow automation orchestrating API & webhook tasks |
-| **Home Assistant** | IoT / Smart Home | `homeassistant/home-assistant` | `8123/tcp` | Replicated (Healthy) | Centralized IoT hub managing sensor telemetry, zigbee/wifi automations |
-| **Hermes / Ollama** | Private AI Agents | `local-inference` | `8642/9119/tcp` | Replicated | On-premise LLM inference (Qwen 2.5 Coder) & autonomous agent execution |
-| **Syncthing** | Data Sync | `syncthing/syncthing` | `8384, 22000/tcp` | Replicated (Healthy) | Continuous peer-to-peer encrypted file synchronization across devices |
-| **Portainer CE** | Orchestration | `portainer/portainer-ce:2.21.5` | `9000/9443/tcp` | Swarm Leader | Centralized web interface for Docker Swarm stack management |
+| **n8n** | Automation | `n8nio/n8n:2.34.4` | `5678/tcp` | Replicated (Manager) | Event-driven workflow automation orchestrating API & webhook tasks |
+| **Portainer CE** | Orchestration | `portainer/portainer-ce:2.21.5` | `9000/9443/tcp` | Swarm Leader (Manager) | Centralized web interface for Docker Swarm stack management |
 | **Portainer Agent** | Orchestration | `portainer/agent:2.21.5` | `9001/tcp` | Global (All Nodes) | Distributed telemetry and task agent across cluster worker nodes |
-| **Glances** | Monitoring | `nicolargo/glances:latest-full` | `61208/61209/tcp` | Global | Real-time multi-metric resource monitor (CPU, RAM, disk, I/O) |
-| **RackPeek** | Monitoring | `aptacode/rackpeek:v2.0.0` | `8095/tcp` | Replicated (Healthy) | Visual hardware rack and service topology dashboard |
-| **Cockpit** | SysAdmin | `systemd / bare-metal` | `9090/tcp` | Host Daemon | Headless Linux administration, storage partitioning, and systemd logs |
-| **Pi-hole** | DNS & Security | `pihole/pihole:latest` | `53/udp, 8080/tcp` | Replicated (Healthy) | Network-wide ad blocker and local recursive DNS resolver |
-| **Tailscale** | Networking | `tailscale/tailscale:v1.98.3` | N/A (Mesh WireGuard) | Host Mode | Zero-trust encrypted overlay mesh VPN for secure remote administration |
-| **SpiderFoot** | Security / OSINT | `spiderfoot:local` | `5001/tcp` | Replicated | Automated OSINT reconnaissance, IP lookup & security scanning |
-| **God's Eye View** | Geospatial / AI | `gods-eye-view:local` | `4173/tcp` | Replicated | Real-time 3D spatial intelligence globe & vehicle tracking |
-| **Jellyfin** | Media Streaming | `linuxserver/jellyfin:10.11.10`| `8096/8097/tcp` | Replicated | Private hardware-accelerated media streaming server |
-| **qBittorrent** | Storage Ingestion | `ghcr.io/hotio/qbittorrent` | `8181/tcp` | Replicated | Automated network downloads with direct storage volume binding |
+| **Cockpit** | SysAdmin | `systemd / bare-metal` | `9090/tcp` | Host Daemon (Manager) | Headless Linux administration, multi-host management, and system logs |
+| **Pi-hole** | DNS & Security | `pihole/pihole:2026.07.2` | `53/udp, 8080/tcp` | Replicated (Healthy) | Network-wide ad blocker and local recursive DNS resolver |
+| **Tailscale** | Networking | `tailscale/tailscale:v1.98.3` | N/A (Mesh WireGuard) | Host Mode (Manager) | Zero-trust encrypted overlay mesh VPN for remote administration |
+| **NetBird** | Network Redundancy | `netbirdio/netbird:latest` | N/A (Mesh WireGuard) | Standby / Template | High-availability failover mesh VPN protecting against Tailscale outages |
 
 ---
 
@@ -198,7 +198,8 @@ IdleAction=ignore
 ```
 
 ### 2. Zero-Trust Networking & SSH Hardening
-* **Overlay Mesh:** Integrated **Tailscale** WireGuard mesh network; all administration occurs over authenticated Tailscale IP ranges, avoiding WAN port forwards.
+* **Overlay Mesh:** Integrated **Tailscale** WireGuard mesh network; all administration occurs over authenticated Tailscale IP ranges, avoiding WAN port forwards. Standby **NetBird** integration is staged for instant mesh failover.
+* **Docker Daemon Storage Safeguards:** Enforced strict JSON log rotation policies in `/etc/docker/daemon.json` (`max-size: 10m`, `max-file: 3`), eliminating runaway container log inflation.
 * **Cryptographic Keys:** Enforced **Ed25519** public-key authentication, completely disabling password authentication and remote direct root logins:
 ```bash
 PasswordAuthentication no
@@ -218,9 +219,9 @@ To scale **The Hive** from a high-efficiency homelab into an isolated, enterpris
 * **Zero-Trust Access Gateways:** Confining all container port publishing exclusively to the private VLAN and Tailscale overlay, preventing broadcast discovery from household consumer devices and containing potential edge vulnerabilities.
 * **Traffic Shaping & QoS:** Enforcing priority queues for real-time telemetry, SQL transactions, and database replication over media streaming.
 
-### 2. Custom Domain-Specific Datasets & On-Premise AI Fine-Tuning
-* **Curated Research Datasets:** Building automated ingestion pipelines that scrape, clean, and vectorize private technical documentation, mechatronics sensor logs, acoustic field research data, and CAD design specifications.
-* **Local RAG & Quantized Model Fine-Tuning:** Leveraging the on-premise Ollama and Hermes Agent architecture with Qdrant/Chroma vector embeddings to run Retrieval-Augmented Generation (RAG) and parameter-efficient fine-tuning (LoRA/QLoRA), creating a private, offline engineering copilot that retains 100% data sovereignty.
+### 2. High-Availability Media Automation & Sync
+* **Full BitTorrent Automation:** Automated indexing and download orchestration with Sonarr, Radarr, Prowlarr, and qBittorrent feeding real-time updates directly to Jellyfin libraries.
+* **Cross-Cluster Compute Rebalancing:** Offloading heavy indexing and database compute tasks to worker node `gpt` while reserving manager node `claude` for storage I/O and hardware-accelerated video streaming.
 
 ### 3. Cross-Service Unified Event Mesh
 * **Smart Home $\leftrightarrow$ Homelab Interlock:** Integrating Home Assistant Zigbee environmental sensors (ambient temperature, humidity, power draw meters) with n8n event webhooks and MariaDB time-series tables.
@@ -238,7 +239,10 @@ The-Hive/
 ├── README.md                           # Comprehensive documentation & architecture guide
 ├── docker/
 │   ├── docker-stack.yml                # Docker Swarm multi-node stack configuration
-│   └── docker-compose.yml              # Standalone compose specification
+│   ├── docker-compose.yml              # Standalone compose specification
+│   ├── homepage/                       # Homepage dashboard compose & configurations
+│   ├── media-stack/                    # Sonarr, Radarr, Prowlarr automation stacks
+│   └── netbird/                        # NetBird failover mesh client compose template
 ├── sql/
 │   ├── 01_schema_init.sql              # Relational schema (nodes, services, telemetry, maintenance)
 │   ├── 02_telemetry_queries.sql        # Advanced analytics (CTEs, window functions, aggregations)
@@ -252,7 +256,7 @@ The-Hive/
         ├── 02_hinge_chassis_crack_damage.jpg
         ├── 03_hardware_teardown_repair.jpg
         ├── 04_baremetal_debian_partitioning.jpg
-        ├── 05_casaos_service_dashboard.jpeg
+        ├── 05_homepage_cluster_dashboard.png
         ├── 06_glances_system_telemetry.jpeg
         ├── 07_portainer_swarm_overview.png
         └── 08_cockpit_cluster_management.png

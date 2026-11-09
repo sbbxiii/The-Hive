@@ -1,0 +1,16 @@
+services:
+  netbird:
+    image: netbirdio/netbird:latest
+    container_name: netbird
+    restart: unless-stopped
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_RESOURCE
+    environment:
+      # Get your free Setup Key from https://app.netbird.io -> Setup Keys
+      - NB_SETUP_KEY=
+    volumes:
+      - /DATA/AppData/netbird:/etc/netbird
+      - /dev/net/tun:/dev/net/tun

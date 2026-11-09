@@ -1,0 +1,3 @@
+swarm-cluster:
+  socket: /var/run/docker.sock
+  swarm: true

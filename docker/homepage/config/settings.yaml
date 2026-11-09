@@ -1,0 +1,14 @@
+title: The Hive Clustered Homelab
+background:
+  opacity: 75
+headerStyle: clean
+layout:
+  Media Pipeline:
+    style: row
+    columns: 4
+  Automation & Database:
+    style: row
+    columns: 3
+  Cluster & Infrastructure:
+    style: row
+    columns: 4

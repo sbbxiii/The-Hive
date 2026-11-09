@@ -1,0 +1,76 @@
+- Media Pipeline:
+    - Jellyfin:
+        icon: jellyfin.png
+        href: http://192.168.100.121:8097/
+        description: "Private Media Streaming Server"
+        server: swarm-cluster
+        container: jellyfin
+    - qBittorrent:
+        icon: qbittorrent.png
+        href: http://192.168.100.121:8181/
+        description: "Torrent Download Client"
+        widget:
+          type: qbittorrent
+          url: http://192.168.100.121:8181
+          username: admin
+          password: ${QBITTORRENT_PASSWORD}
+    - Sonarr:
+        icon: sonarr.png
+        href: http://192.168.100.121:8989/
+        description: "TV Series PVR & Manager"
+        widget:
+          type: sonarr
+          url: http://192.168.100.121:8989
+          key: ${SONARR_API_KEY}
+    - Radarr:
+        icon: radarr.png
+        href: http://192.168.100.121:7878/
+        description: "Movie Collection PVR"
+        widget:
+          type: radarr
+          url: http://192.168.100.121:7878
+          key: ${RADARR_API_KEY}
+
+- Automation & Database:
+    - Prowlarr:
+        icon: prowlarr.png
+        href: http://192.168.100.121:9696/
+        description: "Torrent Indexer Sync Engine (Worker Node: gpt)"
+        widget:
+          type: prowlarr
+          url: http://192.168.100.121:9696
+          key: ${PROWLARR_API_KEY}
+    - n8n:
+        icon: n8n.png
+        href: http://192.168.100.121:5678/
+        description: "Workflow & Webhook Automation"
+        server: swarm-cluster
+        container: n8n
+    - CloudBeaver:
+        icon: cloudbeaver.png
+        href: http://192.168.100.121:8978/
+        description: "MariaDB SQL Database GUI (Worker Node: gpt)"
+
+- Cluster & Infrastructure:
+    - Cockpit:
+        icon: cockpit.png
+        href: https://192.168.100.121:9090/
+        description: "Multi-Host Linux Admin (claude & gpt)"
+    - Portainer:
+        icon: portainer.png
+        href: https://192.168.100.121:9443/
+        description: "Docker Swarm Cluster Management"
+        server: swarm-cluster
+        container: portainer_portainer
+    - Pi-hole:
+        icon: pi-hole.png
+        href: http://192.168.100.121:8080/admin/
+        description: "Network Adblocker & DNS Resolver"
+        server: swarm-cluster
+        container: big-bear-pihole
+    - Tailscale:
+        icon: tailscale.png
+        href: https://login.tailscale.com/admin/machines
+        description: "Zero-Trust Encrypted Mesh Network (claude: 100.75.203.41)"
+        server: swarm-cluster
+        container: tailscale
